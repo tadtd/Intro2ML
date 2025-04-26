@@ -1,0 +1,12 @@
+name: Intro2ML
+channels:
+  - defaults
+dependencies:
+  - python=3.13
+  - pip
+  - pip:
+      - matplotlib
+      - numpy
+      - pandas
+      - scikit-learn
+      - seaborn
