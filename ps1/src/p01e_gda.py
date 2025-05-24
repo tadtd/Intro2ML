@@ -71,5 +71,5 @@ class GDA(LinearModel):
         """
         # *** START CODE HERE ***
         predict = 1/(1+np.exp(-x.dot(self.theta)))
-        return np.round(predict)
+        return np.round(predict) 
         # *** END CODE HERE

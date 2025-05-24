@@ -21,7 +21,7 @@ def main(train_path, eval_path, pred_path):
 
     x_eval, y_eval = util.load_dataset(eval_path, add_intercept=True)
     y_pred = model.predict(x_eval)
-    np.savetxt(pred_path, y_pred, fmt='%d')
+    np.savetxt(pred_path, y_pred > 0.5, fmt='%d')
     # *** END CODE HERE ***
 
 
@@ -69,5 +69,5 @@ class LogisticRegression(LinearModel):
             Outputs of shape (m,).
         """
         # *** START CODE HERE ***
-        return 1 / (1 + np.exp(-x.dot(self.theta))) > 0.5
+        return 1 / (1 + np.exp(-x.dot(self.theta)))
         # *** END CODE HERE ***
