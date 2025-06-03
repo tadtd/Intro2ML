@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import util
 
@@ -18,8 +17,21 @@ def main(tau, train_path, eval_path):
 
     # *** START CODE HERE ***
     # Fit a LWR model
+    model = LocallyWeightedLinearRegression(tau)
+    model.fit(x_train, y_train)
     # Get MSE value on the validation set
+    x_val, y_val = util.load_dataset(eval_path, add_intercept=True)
+    y_pred = model.predict(x_val)
+    mse = np.mean((y_pred- y_val)**2)
+    print(f'MSE:{mse}')
+
     # Plot validation predictions on top of training set
+    util.plt.figure()
+    util.plt.plot(x_train, y_train, 'bx',linewidth=1)
+    util.plt.plot(x_val, y_pred, 'ro', linewidth=1)
+    util.plt.xlabel('x')
+    util.plt.ylabel('y')
+    util.plt.savefig('output/p05b.png')
     # No need to save predictions
     # Plot data
     # *** END CODE HERE ***
@@ -45,6 +57,8 @@ class LocallyWeightedLinearRegression(LinearModel):
 
         """
         # *** START CODE HERE ***
+        self.x = x
+        self.y = y
         # *** END CODE HERE ***
 
     def predict(self, x):
@@ -57,4 +71,30 @@ class LocallyWeightedLinearRegression(LinearModel):
             Outputs of shape (m,).
         """
         # *** START CODE HERE ***
+        m, _ = x.shape
+        y_pred = np.zeros(m)
+
+        for i in range(m):
+            # Compute squared distance using all features
+            # diff = self.x[:, 1:] - x_query[1:]          # (m, d)
+            diff = self.x - x[i]
+            distance_sq = np.sum(diff ** 2, axis=1)     # (m,)
+
+            # Compute weights
+            weights = np.exp(-distance_sq / (2 * self.tau ** 2)) 
+            W = np.diag(weights)
+
+            # Weighted normal equation
+            XTW = self.x.T @ W
+            XTWX = XTW @ self.x
+            XTWy = XTW @ self.y
+
+            try:
+                theta = np.linalg.solve(XTWX, XTWy)
+            except np.linalg.LinAlgError:
+                theta = np.linalg.pinv(XTWX) @ XTWy
+
+            y_pred[i] = x[i] @ theta
+
+        return y_pred
         # *** END CODE HERE ***
